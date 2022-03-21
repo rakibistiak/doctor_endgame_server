@@ -21,7 +21,36 @@ async function run() {
     await client.connect();
     
     const database = client.db("Doctor_Endgame");
-    const carCollection = database.collection("booked_test");
+    const bookedCollection = database.collection("booked_test");
+    const apointmentCollection = database.collection("apointment");
+    const reviewCollection = database.collection("review");
+    // Store Patient data to DB
+    app.post('/apointmentinfo', async(req,res)=>{
+      const data = req.body;
+      const result = await apointmentCollection.insertOne(data);
+      res.json(result.acknowledged)
+    });
+
+    // Post New Review to reviewCollection
+    app.post('/addReview', async (req, res) => {
+      const review = req.body;
+      const result = await reviewCollection.insertOne(review);
+      res.json(result)
+    });
+    // Get All Reviews to display on UI
+    app.get('/review', async(req,res)=>{
+      const result = await reviewCollection.find({}).toArray();
+      res.json(result)
+    });
+
+    // Get My Order Info by email to display on UI
+    app.get('/myOrder', async(req,res)=>{
+      const email = req.query.email;
+      const query = {email}
+      const result = await apointmentCollection.find(query).toArray();
+      res.json(result)
+    });
+
 
   } finally {
     // await client.close();
